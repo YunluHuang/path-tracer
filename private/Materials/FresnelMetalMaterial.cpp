@@ -8,8 +8,8 @@ void FresnelMetalMaterial::setColor(const Color &c) {
   k = 2.63;
 }
 
-void FresnelMetalMaterial::computeReflectance(Color &col, const vec3 &in,
-  vec3 &out, const Intersection &hit) {
+void FresnelMetalMaterial::generateSample(const Intersection &hit, const vec3 &in,
+  Color &col, vec3 &out) {
   //for indentation
   out = 2 * std::abs(dot(in, hit.norm)) * hit.norm - in;
   float nd = std::abs(dot(hit.norm, in));
@@ -25,6 +25,7 @@ void FresnelMetalMaterial::computeReflectance(Color &col, const vec3 &in,
   col.set(metalColor);
 }
 
-Color FresnelMetalMaterial::getRefelction() {
+Color FresnelMetalMaterial::computeReflectance(const Intersection &hit, const vec3 &in,
+  const vec3 &out) {
   return Color::BLACK;
 }

@@ -36,7 +36,7 @@ Color Scene::getSkyColor() {
 
 bool Scene::intersect(const Ray& ray, Intersection& hit) {
   bool success = false;
-  for(unsigned int i=0; i < objects.size(); i++) {
+  for(unsigned int i = 0; i < objects.size(); i++) {
     if(objects[i]->intersect(ray, hit)) success = true;
   }
   return success;

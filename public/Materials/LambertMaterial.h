@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Material.h"
-#include "Random.h"
 
 class LambertMaterial: public Material {
 private:
@@ -12,7 +11,8 @@ public:
   LambertMaterial();
 
   virtual void setColor(const Color &c);
-  virtual void computeReflectance(Color &col, const vec3 &in, vec3 &out,
-    const Intersection &hit);
-  virtual Color getRefelction();
+  virtual void generateSample(const Intersection &hit, const vec3 &in,
+    Color &col, vec3 &out);
+  virtual Color computeReflectance(const Intersection &hit, const vec3 &in,
+    const vec3 &out);
 };

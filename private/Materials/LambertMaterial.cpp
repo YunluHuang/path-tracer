@@ -10,8 +10,8 @@ void LambertMaterial::setColor(const Color& c) {
   diffuse = c;
 }
 
-void LambertMaterial::computeReflectance(Color &col, const vec3 &in, vec3 &out,
-  const Intersection &hit) {
+void LambertMaterial::generateSample(const Intersection &hit, const vec3 &in,
+  Color &col, vec3 &out) {
 
   float s = rand.next();
   float t = rand.next();
@@ -19,14 +19,15 @@ void LambertMaterial::computeReflectance(Color &col, const vec3 &in, vec3 &out,
   float v = sqrt(1 - t);
 
   vec3 norm = hit.norm;
-  vec3 u_ = normalize(cross(norm, norm + vec3(1.0f, 0.0f, 0.0f)));
-  vec3 v_ = normalize(cross(norm, u_));
+  vec3 u_ = hit.tangentU;
+  vec3 v_ = hit.tangentV;
 
   out = v * cosf(u) * u_ + (float)sqrt(t) * norm + v * sinf(u) * v_;
 
   col.set(diffuse);
 }
 
-Color LambertMaterial::getRefelction() {
+Color LambertMaterial::computeReflectance(const Intersection &hit, const vec3 &in,
+  const vec3 &out) {
   return diffuse;
 }

@@ -12,9 +12,13 @@ public:
   float hitDis;
   vec3 pos;
   vec3 norm;
+  vec3 tangentU;
+  vec3 tangentV;
   Material* mtl;
   Color shade;
 
 public:
   Intersection();
+
+  void computeTangents();
 };

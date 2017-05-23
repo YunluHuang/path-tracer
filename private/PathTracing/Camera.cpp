@@ -225,6 +225,7 @@ void Camera::renderPixel(int x, int y, Scene& scene) {
   finalColor *= (1.0f / (xSamples * ySamples));
 
   window->setPixel(x, y, finalColor.toInt());
+  // fprintf(stderr, "pixel color = %i\n", finalColor.toInt());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

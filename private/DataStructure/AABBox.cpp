@@ -176,6 +176,7 @@ bool AABBox::split(int axis) {
 AABBox::~AABBox() {
   if(left != nullptr) delete left;
   if(right != nullptr) delete right;
+  vector<Triangle *>().swap(tris);
   left = nullptr;
   right = nullptr;
 }

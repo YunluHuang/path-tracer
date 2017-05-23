@@ -14,6 +14,7 @@
 #include "Triangle.h"
 #include "LambertMaterial.h"
 #include "FresnelMetalMaterial.h"
+#include "AshikhminMaterial.h"
 
 #include "Random.h"
 
@@ -24,12 +25,13 @@ using namespace std;
 void project1();
 void project2();
 void project3();
+void project4();
 void randomGeneratorTest();
 void messup();
 void sphereTest();
 
 int main() {
-	project3();
+	project4();
 	return 0;
 }
 
@@ -241,6 +243,87 @@ void project3() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void project4() {
+// Create scene
+Scene scn;
+scn.setSkyColor(Color(0.8f, 0.9f, 1.0f));
+
+// Materials
+const int nummtls = 4;
+AshikhminMaterial mtl[nummtls];
+
+// Diffuse
+mtl[0].setSpecularLevel(0.0f);
+mtl[0].setDiffuseLevel(1.0f);
+mtl[0].setDiffuseColor(Color(0.7f, 0.7f, 0.7f));
+
+// Roughened copper
+mtl[1].setDiffuseLevel(0.0f);
+mtl[1].setSpecularLevel(1.0f);
+mtl[1].setSpecularColor(Color(0.9f, 0.6f, 0.5f));
+mtl[1].setRoughness(100.0f, 100.0f);
+// Anisotropic gold
+mtl[2].setDiffuseLevel(0.0f);
+mtl[2].setSpecularLevel(1.0f);
+mtl[2].setSpecularColor(Color(0.95f, 0.7f, 0.3f));
+mtl[2].setRoughness(1.0f, 1000.0f);
+// Red plastic
+mtl[3].setDiffuseColor(Color(1.0f, 0.1f, 0.1f));
+mtl[3].setDiffuseLevel(0.8f);
+mtl[3].setSpecularLevel(0.2f);
+mtl[3].setSpecularColor(Color(1.0f, 1.0f, 1.0f));
+mtl[3].setRoughness(1000.0f, 1000.0f);
+
+// Load dragon mesh
+MeshObject dragon;
+dragon.loadPLY("ply/dragon.ply", 0);
+
+// Create box tree
+AABBTree tree;
+tree.construct(dragon);
+
+// Create dragon instances
+glm::mat4 mtx;
+for(int i = 0; i < 4; i++) {
+	InstanceObject *inst = new InstanceObject(tree);
+	mtx[3]=glm::vec4(0.0f, 0.0f, -0.1f*float(i), 1.0f);
+	inst->setMatrix(mtx);
+	inst->setMaterial(&mtl[i]);
+	scn.addObject(*inst);
+}
+
+// Create ground
+LambertMaterial lambert;
+lambert.setColor(Color(0.3f, 0.3f, 0.35f));
+MeshObject ground;
+ground.makeBox(2.0f,0.11f,2.0f,&lambert);
+scn.addObject(ground);
+
+// Create lights
+DirectLight sunlgt;
+sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
+sunlgt.setIntensity(1.0f);
+sunlgt.setDirection(glm::vec3 (2.0f, -3.0f, -2.0f));
+scn.addLight(sunlgt);
+
+// Create camera
+Camera cam;
+cam.lookAt(glm::vec3(-0.5f, 0.25f, -0.2f), glm::vec3(0.0f, 0.15f, -0.15f), vec3(0.0f, 1.0f, 0.0f));
+cam.setFOV(40.0f);
+cam.setAspect(1.33f);
+cam.setResolution(800, 600);
+cam.setSuperSample(2,2);
+cam.setJitter(true);
+cam.setShirley(true);
+
+// Render image
+cam.render(scn);
+cam.saveBitmap("project4.bmp");
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void motionTest() {
 	// Create scene
 	Scene scn;
@@ -374,14 +457,14 @@ void DOFTest() {
 	cam.setAspect(1.33f);
 	cam.lookAt(glm::vec3(-0.5f,0.25f,-0.2f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(10, 10);
+	cam.setSuperSample(2, 2);
 	//cam.setDOF(0.05f, 0.42f);
 	cam.setJitter(true);
 	cam.setShirley(true);
 
 	// Render image
 	cam.render(scn);
-	cam.saveBitmap("blur.bmp");
+	cam.saveBitmap("project3.bmp");
 }
 ////////////////////////////////////////////////////////////////////////////////
 void sphereTest() {

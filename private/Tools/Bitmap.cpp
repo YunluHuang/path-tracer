@@ -48,6 +48,10 @@ bool Bitmap::saveBMP(const char* filename) {
 	head.ColorPlanes=1;
 	head.BitsPerPixel=32;
 
+  // for(int i = 0; i < xRes * yRes; i++) {
+  //   fprintf(stderr, "%i\n", pixel[i]);
+  // }
+
 	FILE *f=0;
 	f = fopen(filename,"wb");
 	if(f==0) {

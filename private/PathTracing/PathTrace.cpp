@@ -14,27 +14,31 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
   Color directLight = Color::BLACK;
   Color indirectColor = Color::BLACK;
 
+
   if(scene->intersect(ray, hit) == false) {
+    // fprintf(stderr, "not hit\n");
     hit.shade = scene->getSkyColor();
     return false;
   }
+
+  hit.computeTangents();
 
   for(int i = 0; i < scene->getNumLights(); i++) {
     Light* light = scene->getLight(i);
 
     if(isBlocked(hit, light, time)) continue;
 
-    directLight += (light->computeIntensity(hit.pos, hit.norm) * light->getBaseColor());
+    directLight = light->computeIntensity(hit.pos, hit.norm) * (light->getBaseColor());
+    vec3 lightDir = light->computeToLightDir(hit.pos);
+    hit.shade += directLight * hit.mtl->computeReflectance(hit, lightDir, -ray.dir);
   }
-
-  hit.shade += directLight * hit.mtl->getRefelction();
 
   if(depth == maxDepth) return true;
 
   Color outColor;
   vec3 outDir;
   vec3 inDir = normalize(-ray.dir);
-  hit.mtl->computeReflectance(outColor, inDir, outDir, hit);
+  hit.mtl->generateSample(hit, inDir, outColor, outDir);
 
   Intersection newHit;
   Ray newRay;
