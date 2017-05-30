@@ -313,7 +313,7 @@ cam.lookAt(glm::vec3(-0.5f, 0.25f, -0.2f), glm::vec3(0.0f, 0.15f, -0.15f), vec3(
 cam.setFOV(40.0f);
 cam.setAspect(1.33f);
 cam.setResolution(800, 600);
-cam.setSuperSample(2,2);
+cam.setSuperSample(10,10);
 cam.setJitter(true);
 cam.setShirley(true);
 

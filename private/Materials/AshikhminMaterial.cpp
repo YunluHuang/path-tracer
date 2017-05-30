@@ -19,48 +19,47 @@ void AshikhminMaterial::generateSample(const Intersection &hit, const vec3 &in,
   Color &col, vec3 &out) {
       // generate k1
       float i = rand.next();
-      if(i < specularLvl / (specularLvl + diffuseLvl)) {
       float s = rand.next();
       float t = rand.next();
-      float phi = atan(sqrt((nu + 1) / (nv + 1)) * tanf(PI * s / 2.0f));
-      if(s >= 0.25 && s < 0.5) {
-        phi = PI - phi;
-      } else if(s >= 0.5 && s < 0.75) {
-        phi = PI + phi;
-      } else if(s >= 0.75 && s < 1) {
-        phi = 2 * PI - phi;
-      }
-      float cosTheta = (float) pow(1.0f - t, 1.0f / (nu * cosf(phi) * cosf(phi) + nv * sinf(phi) * sinf(phi) + 1));
-      float sinTheta = (float) sqrt(1 - cosTheta * cosTheta);
+      if(i < specularLvl / (specularLvl + diffuseLvl)) {
+        float phi = atan(sqrt((nu + 1.0f) / (nv + 1.0f)) * tanf(PI * s / 2.0f));
+        if(s >= 0.25 && s < 0.5) {
+          phi = PI - phi;
+        } else if(s >= 0.5 && s < 0.75) {
+          phi = PI + phi;
+        } else if(s >= 0.75 && s < 1) {
+          phi = 2 * PI - phi;
+        }
+        float cosTheta = (float) pow(1.0f - t, 1.0f / (nu * cosf(phi) * cosf(phi) + nv * sinf(phi) * sinf(phi) + 1));
+        float sinTheta = (float) sqrt(1 - cosTheta * cosTheta);
 
-      vec3 x = hit.tangentU;
-      vec3 y = hit.tangentV;
-      vec3 n = hit.norm;
-      vec3 h = cosTheta * n + sinTheta * (cosf(phi) * x + sinf(phi) * y);
+        vec3 x = hit.tangentU;
+        vec3 y = hit.tangentV;
+        vec3 n = hit.norm;
+        vec3 h = cosTheta * n + sinTheta * (cosf(phi) * x + sinf(phi) * y);
 
-      float pk2 = 0.0f;
-      float ph = 0.0f;
-      h = normalize(h);
-      vec3 k2 = -in + 2.0f * dot(in, h) * h;
-      if(dot(n, k2) > 0.0f) {
-        ph = sqrt((nu + 1) * (nv + 1)) / (2 * PI) * pow(dot(n, h), nu * cos(phi) * cos(phi) + nv * sin(phi) * sin(phi));
-        pk2 = ph / (4 * dot(in, h));
+        h = normalize(h);
+        vec3 k2 = -in + 2.0f * dot(in, h) * h;
         out = normalize(k2);
+        if(dot(n, k2) < 0.0f) {
+          col = Color::BLACK;
+        } else {
+          float phh = (sqrt((nu + 1.0f) * (nv + 1.0f)) / 2.0f) * pow(dot(n, h), nu * cosf(phi) * cosf(phi) + nv * sinf(phi) * sinf(phi));
+          float pk2 = phh / (4.0f * dot(in, h));
+          col = specular * specularLvl;
+        }
+      } else {
+        float u = 2 * PI * s;
+        float v = sqrt(1 - t);
+
+        vec3 norm = hit.norm;
+        vec3 u_ = hit.tangentU;
+        vec3 v_ = hit.tangentV;
+
+        out = v * cosf(u) * u_ + (float)sqrt(t) * norm + v * sinf(u) * v_;
+        col = diffuse * diffuseLvl;
       }
-      float nh = dot(n, h);
-      col = (specular * pk2 * specularLvl + diffuse * diffuseLvl) / (1 + pk2);
-    }
-    // fprintf(stderr, "nh = %f, ph = %f, pk2 = %f\n", nh, ph, pk2);
-    // float s = rand.next();
-    // float t = rand.next();
-    // float u = 2 * PI * s;
-    // float v = sqrt(1 - t);
-    //
-    // vec3 norm = hit.norm;
-    // vec3 u_ = hit.tangentU;
-    // vec3 v_ = hit.tangentV;
-    //
-    // out = v * cosf(u) * u_ + (float)sqrt(t) * norm + v * sinf(u) * v_;
+
 }
 
 Color AshikhminMaterial::computeReflectance(const Intersection &hit, const vec3 &in,
@@ -80,7 +79,6 @@ Color AshikhminMaterial::computeReflectance(const Intersection &hit, const vec3 
     float hu = dot(h, u);
     float hv = dot(h, v);
     float hk = dot(h, k1);
-    float kh = dot(k1, h);
     float nk1 = dot(n, k1);
     float nk2 = dot(n, k2);
 
@@ -89,18 +87,18 @@ Color AshikhminMaterial::computeReflectance(const Intersection &hit, const vec3 
       ps = Color::BLACK;
     }
     else {
-      float psCache1 = (float) sqrt((nu + 1) * (nv + 1)) / (8);
+      float psCache1 = (float) sqrt((nu + 1) * (nv + 1)) / 8.0f;
       float psCache2 = pow(nh, (nu * hu * hu + nv * hv * hv) / (1 - nh * nh));
       float psCache3 = hk * fmax(nk1, nk2);
-      float fkh = specularLvl + diffuseLvl * pow((1 - kh), 5);
-      ps = psCache1 * psCache2 / psCache3 * specular;
+      float fkh = specularLvl + (1.0f - specularLvl) * pow((1 - hk), 5);
+      ps = psCache1 * psCache2 / psCache3 * fkh * specular;
     }
 
     //compute pd
     float pdCache1 = 1 - pow(1 - nk1 / 2.0f, 5);
     float pdCache2 = 1 - pow(1 - nk2 / 2.0f, 5);
 
-    Color pd = (28 * diffuseLvl / (23)) * diffuseLvl * pdCache1 * pdCache2 * diffuse;
+    Color pd = (28 * diffuseLvl / (23.0f)) * (1.0f - specularLvl) * pdCache1 * pdCache2 * diffuse;
 
     return ps + pd;
 }
@@ -113,8 +111,8 @@ void AshikhminMaterial::setDiffuseLevel(float dlvl) {
   diffuseLvl = dlvl;
 }
 
-void AshikhminMaterial::setSpecularColor(Color sCol) {
-  specular = sCol;
+void AshikhminMaterial::setSpecularColor(Color spCol) {
+  specular = spCol;
 }
 
 void AshikhminMaterial::setDiffuseColor(Color dCol) {

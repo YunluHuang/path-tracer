@@ -24,7 +24,7 @@ public:
 
   void setSpecularLevel(float slvl);
   void setDiffuseLevel(float dlvl);
-  void setSpecularColor(Color sCol);
+  void setSpecularColor(Color spCol);
   void setDiffuseColor(Color dCol);
   void setRoughness(float nu, float nv);
 };
