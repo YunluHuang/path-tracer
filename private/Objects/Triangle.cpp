@@ -35,7 +35,7 @@ bool Triangle::intersect(const Ray& ray, Intersection& hit) {
 
   float t = dot((p-a), cross(b-a, c-a)) / dM;
 
-  if(t > 0.001f) {
+  if(t > 0.0f) {
     float al = dot(-d, cross(p-a, c-a)) / dM;
     float be =  dot(-d, cross(b-a, p-a)) / dM;
     vec3 hitPos = p + t * d;

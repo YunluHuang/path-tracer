@@ -16,12 +16,17 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
 
 
   if(scene->intersect(ray, hit) == false) {
-    // fprintf(stderr, "not hit\n");
     hit.shade = scene->getSkyColor();
     return false;
   }
 
   hit.computeTangents();
+
+  if(hit.mtl->hasEmission()) {
+    vec3 dummy;
+    hit.shade = hit.mtl->computeReflectance(hit, dummy, dummy);
+    return true;
+  }
 
   for(int i = 0; i < scene->getNumLights(); i++) {
     Light* light = scene->getLight(i);
@@ -42,7 +47,7 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
 
   Intersection newHit;
   Ray newRay;
-  newRay.org = hit.pos;
+  newRay.org = hit.pos + 0.001f * outDir;
   newRay.dir = outDir;
   newRay.t = time;
   traceRay(newRay, newHit, depth + 1);
@@ -55,8 +60,9 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
 
 bool PathTrace::isBlocked(Intersection& hit, Light* light, float time) {
   Ray shadowRay;
-  shadowRay.org = hit.pos;
-  shadowRay.dir = light->computeToLightDir(hit.pos);
+  vec3 dir = light->computeToLightDir(hit.pos);
+  shadowRay.org = hit.pos + 0.001f * dir;
+  shadowRay.dir = dir;
   shadowRay.t = time;
 
   Intersection shadowHit;

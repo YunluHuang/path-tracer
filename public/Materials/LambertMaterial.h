@@ -15,4 +15,6 @@ public:
     Color &col, vec3 &out);
   virtual Color computeReflectance(const Intersection &hit, const vec3 &in,
     const vec3 &out);
+  // virtual bool hasEmission();
+
 };

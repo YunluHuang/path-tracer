@@ -2,6 +2,8 @@
 #include "InstanceObject.h"
 #include "MotionObject.h"
 #include "Sphere.h"
+#include "Triangle.h"
+
 #include "Camera.h"
 #include "PointLight.h"
 #include "DirectLight.h"
@@ -15,6 +17,7 @@
 #include "LambertMaterial.h"
 #include "FresnelMetalMaterial.h"
 #include "AshikhminMaterial.h"
+#include "EmissionMaterial.h"
 
 #include "Random.h"
 
@@ -31,7 +34,8 @@ void messup();
 void sphereTest();
 
 int main() {
-	project4();
+	sphereTest();
+	// project3();
 	return 0;
 }
 
@@ -470,45 +474,72 @@ void DOFTest() {
 void sphereTest() {
 	// Create scene
 	Scene scn;
-	scn.setSkyColor(Color(0.8f, 0.9f, 1.0f));
+	// scn.setSkyColor(Color(0.8f, 0.9f, 1.0f));
+	scn.setSkyColor(Color(0.71f, 0.8f, 0.8f));
+
 
 	// Create ground
 	LambertMaterial groundMtl;
-	groundMtl.setColor(Color(0.25f, 0.25f, 0.25f));
+	groundMtl.setColor(Color(0.5f, 0.5f, 0.5f));
 	MeshObject ground;
-	ground.makeBox(2.0f, 0.11f, 2.0f, &groundMtl);
+	ground.makeBox(2.0f, 0.1f, 2.0f, &groundMtl);
 	scn.addObject(ground);
 
 	// Materials
 	LambertMaterial white;
 	white.setColor(Color(0.7f,0.7f,0.7f));
-	LambertMaterial red;
-	red.setColor(Color(0.7f,0.1f,0.1f));
+	LambertMaterial pink;
+	pink.setColor(Color(1.0f,0.59f,0.8f));
+	EmissionMaterial areaLight;
+	areaLight.setColor(Color(8.0f, 8.0f, 8.0f));
 
 	Sphere s1;
-	vec3 center = vec3(0.0f, 0.3f, 0.2f);
-	s1.init(center, 0.1f, &red);
+	vec3 center1 = vec3(0.0f, 0.115f, 0.2f);
+	s1.init(center1, 0.06f, &pink);
 	scn.addObject(s1);
 
-	// Create lights
-	DirectLight sunlgt;
-	sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
-	sunlgt.setIntensity(1.0f);
-	sunlgt.setDirection(glm::vec3(2.0f, -3.0f, -2.0f));
-	scn.addLight(sunlgt);
+	Triangle light1;
+	Triangle light2;
+	Vertex v0, v1, v2, v3;
+	vec3 pos0 = vec3(-0.1f, 0.28f, 0.19f);
+	vec3 pos1 = vec3(0.1f, 0.28f, 0.19f);
+	vec3 pos2 = vec3(0.1f, 0.28f, 0.21f);
+	vec3 pos3 = vec3(-0.1f, 0.28f, 0.21f);
+	vec3 norm = vec3(0.0f, -1.0f, 0.0f);
+	vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
+	v0.set(pos0, norm, tCoord);
+	v1.set(pos1, norm, tCoord);
+	v2.set(pos2, norm, tCoord);
+	v3.set(pos3, norm, tCoord);
+	light1.init(&v0, &v1, &v2, &areaLight);
+	light2.init(&v2, &v3, &v0, &areaLight);
+	scn.addObject(light1);
+	scn.addObject(light2);
+
+	// Sphere light;
+	// vec3 center2 = vec3(0.0f, 0.27f, 0.2f);
+	// light.init(center2, 0.01f, &areaLight);
+	// scn.addObject(light);
+
+	// // Create lights
+	// DirectLight sunlgt;
+	// sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
+	// sunlgt.setIntensity(1.0f);
+	// sunlgt.setDirection(glm::vec3(2.0f, -3.0f, -2.0f));
+	// scn.addLight(sunlgt);
 
 	// Create camera
 	Camera cam;
 	cam.setResolution(640,480);
 	cam.setAspect(1.33f);
-	cam.lookAt(glm::vec3(-0.5f,0.25f,-0.2f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
+	cam.lookAt(glm::vec3(0.0f, 0.15f, -0.2f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(5,5);
+	cam.setSuperSample(40,40);
 	//cam.setDOF(0.01f, 0.45f);
 	cam.setJitter(true);
 	cam.setShirley(true);
 
 	// Render image
 	cam.render(scn);
-	cam.saveBitmap("sphere.bmp");
+	cam.saveBitmap("sphere_pink.bmp");
 }

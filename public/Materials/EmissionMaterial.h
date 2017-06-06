@@ -2,18 +2,16 @@
 
 #include "Material.h"
 
-class FresnelMetalMaterial: public Material {
+class EmissionMaterial: public Material {
 private:
-  float n;
-  float k;
-  Color metalColor;
+  Color emission;
 
 public:
   virtual void setColor(const Color &c);
   virtual void generateSample(const Intersection &hit, const vec3 &in,
-    Color &col, vec3 &out);
+    Color &col, vec3 &out){};
   virtual Color computeReflectance(const Intersection &hit, const vec3 &in,
     const vec3 &out);
-  // virtual bool hasEmission();
+  virtual bool hasEmission();
 
 };
