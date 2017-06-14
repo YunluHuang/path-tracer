@@ -32,9 +32,10 @@ void project4();
 void randomGeneratorTest();
 void messup();
 void sphereTest();
+void room();
 
 int main() {
-	sphereTest();
+	project3();
 	// project3();
 	return 0;
 }
@@ -236,7 +237,7 @@ void project3() {
 	cam.setAspect(1.33f);
 	cam.lookAt(glm::vec3(-0.5f,0.25f,-0.2f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(2, 2);
+	cam.setSuperSample(10, 10);
 	//cam.setDOF(0.05f, 0.42f);
 	cam.setJitter(true);
 	cam.setShirley(true);
@@ -542,4 +543,110 @@ void sphereTest() {
 	// Render image
 	cam.render(scn);
 	cam.saveBitmap("sphere_pink.bmp");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void room() {
+
+	// Create scene
+	Scene scn;
+	scn.setSkyColor(Color(0.7f, 0.7f, 0.9f));
+
+	///
+	LambertMaterial white;
+	white.setColor(Color(0.9f, 0.9f, 0.9f));
+
+	LambertMaterial red;
+	red.setColor(Color(0.9f, 0.1f, 0.1f));
+
+	LambertMaterial green;
+	green.setColor(Color(0.1f, 0.9f, 0.1f));
+
+	///
+	MeshObject fb;
+	fb.makeBox(1.4f, 2.0f, 0.1f, &white);
+
+	// mat4 mtx0 = mat4(1.0f);
+	// InstanceObject front = InstanceObject(fb);
+	// mtx0[3]=glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+	// front.setMatrix(mtx0);
+
+	mat4 mtx1 = mat4(1.0f);
+	InstanceObject back = InstanceObject(fb);
+	mtx1[3]=glm::vec4(0.0f, 0.0f, -1.0f, 1.0f);
+	back.setMatrix(mtx1);
+
+	///
+	MeshObject td;
+	td.makeBox(1.4f, 0.1f, 2.0f, &white);
+
+	mat4 mtx2 = mat4(1.0f);
+	InstanceObject top = InstanceObject(td);
+	mtx2[3]=glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+	top.setMatrix(mtx2);
+
+	mat4 mtx3 = mat4(1.0f);
+	InstanceObject bottom = InstanceObject(td);
+	mtx3[3]=glm::vec4(0.0f, -1.0f, 0.0f, 1.0f);
+	bottom.setMatrix(mtx3);
+
+	///
+	MeshObject rl;
+	rl.makeBox(0.1f, 2.0f, 2.0f, 0);
+
+	mat4 mtx4 = mat4(1.0f);
+	InstanceObject right = InstanceObject(rl);
+	mtx4[3]=glm::vec4(0.7f, 0.0f, 0.0f, 1.0f);
+	right.setMatrix(mtx4);
+	right.setMaterial(&green);
+
+	mat4 mtx5 = mat4(1.0f);
+	InstanceObject left = InstanceObject(rl);
+	mtx5[3]=glm::vec4(-0.7f, 0.0f, 0.0f, 1.0f);
+	left.setMatrix(mtx5);
+	left.setMaterial(&red);
+
+	///
+	// scn.addObject(front);
+	scn.addObject(back);
+	scn.addObject(top);
+	scn.addObject(bottom);
+	scn.addObject(right);
+	scn.addObject(left);
+
+	///
+	EmissionMaterial areaLight;
+	areaLight.setColor(Color(8.0f, 8.0f, 8.0f));
+	Triangle light1;
+	Triangle light2;
+	Vertex v0, v1, v2, v3;
+	vec3 pos0 = vec3(-0.2f, 0.95f, -0.2f);
+	vec3 pos1 = vec3(0.2f, 0.95f, -0.2f);
+	vec3 pos2 = vec3(0.2f, 0.95f, 0.2f);
+	vec3 pos3 = vec3(-0.2f, 0.95f, 0.2f);
+	vec3 norm = vec3(0.0f, -1.0f, 0.0f);
+	vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
+	v0.set(pos0, norm, tCoord);
+	v1.set(pos1, norm, tCoord);
+	v2.set(pos2, norm, tCoord);
+	v3.set(pos3, norm, tCoord);
+	light1.init(&v0, &v1, &v2, &areaLight);
+	light2.init(&v2, &v3, &v0, &areaLight);
+	scn.addObject(light1);
+	scn.addObject(light2);
+
+	///
+	Camera cam;
+	cam.setResolution(480,640);
+	cam.setAspect(48.0f / 64.0f);
+	cam.lookAt(glm::vec3(0.0f, 0.0f, 3.0f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0, 1.0f, 0));
+	cam.setFOV(40.0f);
+	cam.setSuperSample(10, 10);
+	//cam.setDOF(0.01f, 0.45f);
+	cam.setJitter(true);
+	cam.setShirley(true);
+
+	// Render image
+	cam.render(scn);
+	cam.saveBitmap("room.bmp");
 }

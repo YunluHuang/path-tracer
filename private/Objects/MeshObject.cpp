@@ -132,7 +132,7 @@ void MeshObject::makeBox(float x, float y, float z, Material *mtl) {
 	triangles[11].init(&vertexes[20], &vertexes[22], &vertexes[23], mtl);
 }
 
-//////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 bool MeshObject::loadPLY(const char *filename, Material *mtl) {
 	// Open file

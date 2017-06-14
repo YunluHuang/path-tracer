@@ -1,4 +1,4 @@
-CC = g++ -MMD -O3
+CC = g++ -MMD -O3 -std=c++11
 CFLAGS = -g -Wall -DGL_GLEXT_PROTOTYPES
 #INCFLAGS = -I./glm-0.9.7.1 -I/usr/X11/include
 

@@ -1,0 +1,137 @@
+# Max2Obj Version 4.0 Mar 10th, 2001
+#
+mtllib ./scene.mtl
+g
+# object ShortBox to come ...
+#
+v  8.169873 0 11.830127
+v  16.830128 0 6.830127
+v  3.169873 0 3.169873
+v  11.830127 0 -1.830127
+v  8.169873 20 11.830127
+v  16.830128 20 6.830127
+v  3.169873 20 3.169873
+v  11.830127 20 -1.830127
+# 8 vertices
+
+g ShortBox
+usemtl ShortBox
+f 1 3 4
+f 4 2 1
+f 5 6 8
+f 8 7 5
+f 1 2 6
+f 6 5 1
+f 2 4 8
+f 8 6 2
+f 4 3 7
+f 7 8 4
+f 3 1 5
+f 5 7 3
+# 12 faces
+
+g
+# object TallBox to come ...
+#
+v  -9.830127 0 6.830127
+v  -1.169873 0 1.830127
+v  -14.830127 0 -1.830127
+v  -6.169873 0 -6.830127
+v  -9.830127 30 6.830127
+v  -1.169873 30 1.830127
+v  -14.830127 30 -1.830127
+v  -6.169873 30 -6.830127
+# 8 vertices
+
+g TallBox
+usemtl TallBox
+f 9 11 12
+f 12 10 9
+f 13 14 16
+f 16 15 13
+f 9 10 14
+f 14 13 9
+f 10 12 16
+f 16 14 10
+f 12 11 15
+f 15 16 12
+f 11 9 13
+f 13 15 11
+# 12 faces
+
+g
+# object BackWall to come ...
+#
+v  -28 0 -20
+v  28 0 -20
+v  -28 40 -20
+v  28 40 -20
+# 4 vertices
+
+g BackWall
+usemtl OtherWalls
+f 17 18 19
+f 20 19 18
+# 2 faces
+
+g
+# object RightWall to come ...
+#
+v  28 0 20
+v  28 0 -20
+v  28 40 20
+v  28 40 -20
+# 4 vertices
+
+g RightWall
+usemtl RightWall
+f 22 21 24
+f 23 24 21
+# 2 faces
+
+g
+# object LeftWall to come ...
+#
+v  -28 0 20
+v  -28 0 -20
+v  -28 40 20
+v  -28 40 -20
+# 4 vertices
+
+g LeftWall
+usemtl LeftWall
+f 25 26 27
+f 28 27 26
+# 2 faces
+
+g
+# object Ceiling to come ...
+#
+v  -28 40 20
+v  28 40 20
+v  -28 40 -20
+v  28 40 -20
+# 4 vertices
+
+g Ceiling
+usemtl OtherWalls
+f 30 29 32
+f 31 32 29
+# 2 faces
+
+g
+# object Floor to come ...
+#
+v  -28 0 20
+v  28 0 20
+v  -28 0 -20
+v  28 0 -20
+# 4 vertices
+
+g Floor
+usemtl OtherWalls
+f 35 33 36
+f 34 36 33
+# 2 faces
+
+g

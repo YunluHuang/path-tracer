@@ -8,7 +8,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <stdio.h>
+#include <thread>
+#include <mutex>
+#include <time.h>
+#include <sys/time.h>
 
+#define TILE_SIZE 8
+#define THREAD_NUM 6
 
 typedef glm::vec2 vec2;
 typedef glm::vec3 vec3;
@@ -21,7 +27,10 @@ private:
   float vfov;
   float aspect;
   mat4 cam;
-  Bitmap* window;
+  Bitmap * window;
+  PathTrace * tracer;
+  std::mutex tileLock;
+  int tileNum;
   ///////////////
 
   //ANTIALIASING//
@@ -42,8 +51,9 @@ private:
   vec2 cosWeight();
   vec3 generateRayOrg();
   vec3 generateRayDir(int x, int y, float u, float v, vec3 pos);
+  void renderTile(int tileID);
   Ray* generateRays(int x, int y);
-  void renderPixel(int x, int y, Scene& scene);
+  void renderPixel(int x, int y);
 
 public:
   Camera();
@@ -64,3 +74,5 @@ public:
   void render(Scene& scene);
   void saveBitmap(const char* filename);
 };
+
+double getTime();

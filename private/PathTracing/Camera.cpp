@@ -31,6 +31,9 @@ void Camera::lookAt(const vec3& pos, const vec3& target, const vec3& up) {
 */
 void Camera::setResolution(int xRes, int yRes) {
   window = new Bitmap(xRes, yRes);
+  tileLock.lock();
+  tileNum = (xRes / TILE_SIZE) * (yRes / TILE_SIZE);
+  tileLock.unlock();
 }
 
 /**
@@ -80,29 +83,55 @@ void Camera::setSuperSample(int xSamples, int ySamples) {
   Render the image
 */
 void Camera::render(Scene& scene) {
-  clock_t timer;
-  timer = clock();
+  tracer = new PathTrace(scene);
+  tileLock.lock();
+  const int totalTiles = tileNum;
+  tileLock.unlock();
 
+  double timer = getTime();
   std::cout<<"rendering:"<<std::endl;
-  int x, y;
-  float progress = 0.0f;
-  int count = 0;
-  for(x = 0; x < window->getXRes(); x++) {
-    for(y = 0; y < window->getYRes(); y++) {
-      renderPixel(x, y, scene);
-      progress = (float)(y + x * window->getYRes()) / (window->getXRes() * window->getYRes());
-    }
-    if(count > window->getXRes() / 70) {
-      count = 0;
-      printProgress(progress);
-    }
-    count++;
+
+  std::thread * threads[THREAD_NUM];
+  for(int i = 0; i < THREAD_NUM; i++) {
+    threads[i] = new std::thread([=](){
+      while(1) {
+        tileLock.lock();
+        int tileID = --tileNum;
+        if((totalTiles - tileID) % 32 == 0) {
+          printProgress((float)(totalTiles - tileID) / (float)totalTiles);
+        }
+        tileLock.unlock();
+        if(tileID < 0) {
+          return;
+        }
+        renderTile(tileID);
+      }
+    });
   }
+
+  for(int i = 0; i < THREAD_NUM; i++) {
+    threads[i]->join();
+  }
+
+  // int x, y;
+  // float progress = 0.0f;
+  // int count = 0;
+  // for(x = 0; x < window->getXRes(); x++) {
+  //   for(y = 0; y < window->getYRes(); y++) {
+  //     renderPixel(x, y);
+  //     progress = (float)(y + x * window->getYRes()) / (window->getXRes() * window->getYRes());
+  //   }
+  //   if(count > window->getXRes() / 70) {
+  //     count = 0;
+  //     printProgress(progress);
+  //   }
+  //   count++;
+  // }
 
   printProgress(1.0f);
   std::cout << std::endl;
-  timer = clock() - timer;
-  printf("Render took %f seconds. \n", ((float)timer)/CLOCKS_PER_SEC);
+  timer = getTime() - timer;
+  printf("Render took %f seconds. \n", timer);
 }
 
 /**
@@ -174,9 +203,18 @@ vec3 Camera::generateRayDir(int x, int y, float u, float v, vec3 pos) {
   return dir;
 }
 
-/**
-  Render each pixel
-*/
+void Camera::renderTile(int tileID) {
+  int w = window->getXRes() / TILE_SIZE;
+  int h = window->getYRes() / TILE_SIZE;
+  int tw = tileID % w;
+  int th = tileID / w;
+  for(int x = tw * TILE_SIZE; x < (tw + 1) * TILE_SIZE; x++) {
+    for(int y = th * TILE_SIZE; y < (th + 1) * TILE_SIZE; y++) {
+      renderPixel(x, y);
+    }
+  }
+}
+
 Ray * Camera::generateRays(int x, int y) {
   Ray *rays = new Ray[xSamples * ySamples];
 
@@ -209,8 +247,7 @@ Ray * Camera::generateRays(int x, int y) {
   return rays;
 }
 
-void Camera::renderPixel(int x, int y, Scene& scene) {
-  PathTrace tracer = PathTrace(scene);
+void Camera::renderPixel(int x, int y) {
   Ray* rays = generateRays(x, y);
   Color finalColor = Color(0, 0, 0);
 
@@ -218,14 +255,12 @@ void Camera::renderPixel(int x, int y, Scene& scene) {
     Ray ray = rays[i];
     Intersection hit;
 
-    tracer.traceRay(ray, hit, 0);
+    tracer->traceRay(ray, hit, 0);
     finalColor += hit.shade;
   }
 
   finalColor *= (1.0f / (xSamples * ySamples));
-
   window->setPixel(x, y, finalColor.toInt());
-  // fprintf(stderr, "pixel color = %i\n", finalColor.toInt());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,8 +272,20 @@ Camera::~Camera() {
     delete window;
     window = 0;
   }
+  if(tracer != 0) {
+    delete tracer;
+    tracer = 0;
+  }
   if(randGen != 0) {
     delete randGen;
     randGen = 0;
   }
+}
+////////////////////////////////////////////////////////////////////////////////
+double getTime(){
+    struct timeval time;
+    if (gettimeofday(&time,NULL)){
+        return 0;
+    }
+    return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
