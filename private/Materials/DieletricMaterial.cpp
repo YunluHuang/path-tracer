@@ -1,5 +1,7 @@
 #include "DieletricMaterial.h"
 
+#include <iostream>
+
 DieletricMaterial::DieletricMaterial() {
   randGen = new Random(true);
 }
@@ -24,8 +26,9 @@ void DieletricMaterial::generateSample(const Intersection &hit, const vec3 &in,
     bool isInside = false;
 
     if(dot(d, norm) < 0.0f) {
-      norm = -hit.norm;
+      //std::cout << "inside" << std::endl;
       isInside = true;
+      norm = -hit.norm;
       ni = n;
       nt = 1.0f;
     }
@@ -33,6 +36,7 @@ void DieletricMaterial::generateSample(const Intersection &hit, const vec3 &in,
     vec3 r = 2 * dot(d, norm) * norm - d;
     vec3 z = ni / nt * (dot(d, norm) * norm - d);
     if(length(z) > 1.0f) {
+      if(!isInside) std::cout << "reflect" << std::endl;
       out = r;
       return;
     } else {
@@ -40,12 +44,18 @@ void DieletricMaterial::generateSample(const Intersection &hit, const vec3 &in,
 
       float rpar = (nt * dot(norm, d) + ni * dot(norm, t)) / (nt * dot(norm, d) - ni * dot(norm, t));
       float rperp = (ni * dot(norm, d) + nt * dot(norm, t)) / (ni * dot(norm, d)- nt * dot(norm, t));
-      float ft = 1 - 0.5f * (rpar * rpar + rperp * rperp);
+      float ft = 1.0f - 0.5f * (rpar * rpar + rperp * rperp);
 
-      int pick = randGen->next();
+      float pick = randGen->next();
+      //std::cout << pick << std::endl;
+      if(dot(norm, d) < cosf(80.0f / 180.0f * PI)) {
+        //std::cout << "flat: ft = " << ft << ", pick = " << pick << std::endl;
+      }
       if(pick < ft) {
+        //std::cout << "transmission" << std::endl;
         out = t;
       } else {
+        //std::cout << "reflection" << std::endl;
         out = r;
       }
     }

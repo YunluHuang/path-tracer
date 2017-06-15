@@ -578,7 +578,7 @@ void room() {
 
 	// Create scene
 	Scene scn;
-	scn.setSkyColor(Color::BLACK);
+	scn.setSkyColor(Color(0.9f, 0.9f, 0.9f));
 
 	///
 	LambertMaterial white;
@@ -590,12 +590,12 @@ void room() {
 	LambertMaterial green;
 	green.setColor(Color(0.1f, 0.9f, 0.1f));
 
-	LambertMaterial pink;
-	pink.setColor(Color(1.0f,0.59f,0.8f));
+	LambertMaterial blue;
+	blue.setColor(Color(0.1f, 0.1f, 0.9f));
 
 	DieletricMaterial glass;
 	glass.setColor(Color(0.9f, 0.9f, 0.9f));
-	glass.setIndex(1.5f);
+	glass.setIndex(1.8f);
 
 	///
 	MeshObject fb;
@@ -610,6 +610,7 @@ void room() {
 	InstanceObject back = InstanceObject(fb);
 	mtx1[3]=glm::vec4(0.0f, 0.0f, -0.5f, 1.0f);
 	back.setMatrix(mtx1);
+	//back.setMaterial(&blue);
 
 	///
 	MeshObject td;
@@ -624,6 +625,7 @@ void room() {
 	InstanceObject bottom = InstanceObject(td);
 	mtx3[3]=glm::vec4(0.0f, -0.5f, 0.0f, 1.0f);
 	bottom.setMatrix(mtx3);
+	//bottom.setMaterial(&red);
 
 	///
 	MeshObject rl;
@@ -642,7 +644,7 @@ void room() {
 	left.setMaterial(&red);
 
 	///
-	// scn.addObject(front);
+	//scn.addObject(front);
 	scn.addObject(back);
 	scn.addObject(top);
 	scn.addObject(bottom);
@@ -651,9 +653,17 @@ void room() {
 
 	///
 	Sphere s1;
-	vec3 center1 = vec3(0.0f, -0.2f, 0.0f);
-	s1.init(center1, 0.3f, &glass);
+	vec3 center1 = vec3(-0.1f, -0.3f, -0.1f);
+	s1.init(center1, 0.2f, &glass);
 	scn.addObject(s1);
+
+	// MeshObject window;
+	// window.makeBox(0.5f, 0.5f, 0.01f, &glass);
+	// InstanceObject windowInstance = InstanceObject(window);
+	// glm::mat4 windowMtx=glm::rotate(glm::mat4(),(float)M_PI / -2.2f,glm::vec3(1,0,0));
+	// windowMtx[3] = vec4(0.0f, -0.3f, 0.0f, 1.0f);
+	// windowInstance.setMatrix(windowMtx);
+	// scn.addObject(windowInstance);
 
 
 	///
@@ -685,12 +695,12 @@ void room() {
 	cam.setAspect(1.0f);
 	cam.lookAt(glm::vec3(0.0f, 0.0f, 1.8f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(3, 3);
+	cam.setSuperSample(5, 5);
 	//cam.setDOF(0.01f, 0.45f);
 	cam.setJitter(true);
 	cam.setShirley(true);
 
 	// Render image
 	cam.render(scn);
-	cam.saveBitmap("room_glass.bmp");
+	cam.saveBitmap("room_plane.bmp");
 }
