@@ -32,7 +32,6 @@ bool Sphere::intersect(const Ray& ray, Intersection& hit) {
     t = t1 < 0 ? t0 : t1;
   }
 
-
   if(hit.hitDis > t) {
     hit.hitDis = t;
     hit.pos = o + d * t;

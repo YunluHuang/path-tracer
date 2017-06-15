@@ -19,6 +19,7 @@
 #include "FresnelMetalMaterial.h"
 #include "AshikhminMaterial.h"
 #include "EmissionMaterial.h"
+#include "DieletricMaterial.h"
 
 #include "Random.h"
 
@@ -251,81 +252,81 @@ void project3() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void project4() {
-// Create scene
-Scene scn;
-scn.setSkyColor(Color(0.8f, 0.9f, 1.0f));
+	// Create scene
+	Scene scn;
+	scn.setSkyColor(Color(0.8f, 0.9f, 1.0f));
 
-// Materials
-const int nummtls = 4;
-AshikhminMaterial mtl[nummtls];
+	// Materials
+	const int nummtls = 4;
+	AshikhminMaterial mtl[nummtls];
 
-// Diffuse
-mtl[0].setSpecularLevel(0.0f);
-mtl[0].setDiffuseLevel(1.0f);
-mtl[0].setDiffuseColor(Color(0.7f, 0.7f, 0.7f));
+	// Diffuse
+	mtl[0].setSpecularLevel(0.0f);
+	mtl[0].setDiffuseLevel(1.0f);
+	mtl[0].setDiffuseColor(Color(0.7f, 0.7f, 0.7f));
 
-// Roughened copper
-mtl[1].setDiffuseLevel(0.0f);
-mtl[1].setSpecularLevel(1.0f);
-mtl[1].setSpecularColor(Color(0.9f, 0.6f, 0.5f));
-mtl[1].setRoughness(100.0f, 100.0f);
-// Anisotropic gold
-mtl[2].setDiffuseLevel(0.0f);
-mtl[2].setSpecularLevel(1.0f);
-mtl[2].setSpecularColor(Color(0.95f, 0.7f, 0.3f));
-mtl[2].setRoughness(1.0f, 1000.0f);
-// Red plastic
-mtl[3].setDiffuseColor(Color(1.0f, 0.1f, 0.1f));
-mtl[3].setDiffuseLevel(0.8f);
-mtl[3].setSpecularLevel(0.2f);
-mtl[3].setSpecularColor(Color(1.0f, 1.0f, 1.0f));
-mtl[3].setRoughness(1000.0f, 1000.0f);
+	// Roughened copper
+	mtl[1].setDiffuseLevel(0.0f);
+	mtl[1].setSpecularLevel(1.0f);
+	mtl[1].setSpecularColor(Color(0.9f, 0.6f, 0.5f));
+	mtl[1].setRoughness(100.0f, 100.0f);
+	// Anisotropic gold
+	mtl[2].setDiffuseLevel(0.0f);
+	mtl[2].setSpecularLevel(1.0f);
+	mtl[2].setSpecularColor(Color(0.95f, 0.7f, 0.3f));
+	mtl[2].setRoughness(1.0f, 1000.0f);
+	// Red plastic
+	mtl[3].setDiffuseColor(Color(1.0f, 0.1f, 0.1f));
+	mtl[3].setDiffuseLevel(0.8f);
+	mtl[3].setSpecularLevel(0.2f);
+	mtl[3].setSpecularColor(Color(1.0f, 1.0f, 1.0f));
+	mtl[3].setRoughness(1000.0f, 1000.0f);
 
-// Load dragon mesh
-MeshObject dragon;
-dragon.loadPLY("ply/dragon.ply", 0);
+	// Load dragon mesh
+	MeshObject dragon;
+	dragon.loadPLY("ply/dragon.ply", 0);
 
-// Create box tree
-AABBTree tree;
-tree.construct(dragon);
+	// Create box tree
+	AABBTree tree;
+	tree.construct(dragon);
 
-// Create dragon instances
-glm::mat4 mtx;
-for(int i = 0; i < 4; i++) {
-	InstanceObject *inst = new InstanceObject(tree);
-	mtx[3]=glm::vec4(0.0f, 0.0f, -0.1f*float(i), 1.0f);
-	inst->setMatrix(mtx);
-	inst->setMaterial(&mtl[i]);
-	scn.addObject(*inst);
-}
+	// Create dragon instances
+	glm::mat4 mtx;
+	for(int i = 0; i < 4; i++) {
+		InstanceObject *inst = new InstanceObject(tree);
+		mtx[3]=glm::vec4(0.0f, 0.0f, -0.1f*float(i), 1.0f);
+		inst->setMatrix(mtx);
+		inst->setMaterial(&mtl[i]);
+		scn.addObject(*inst);
+	}
 
-// Create ground
-LambertMaterial lambert;
-lambert.setColor(Color(0.3f, 0.3f, 0.35f));
-MeshObject ground;
-ground.makeBox(2.0f,0.11f,2.0f,&lambert);
-scn.addObject(ground);
+	// Create ground
+	LambertMaterial lambert;
+	lambert.setColor(Color(0.3f, 0.3f, 0.35f));
+	MeshObject ground;
+	ground.makeBox(2.0f,0.11f,2.0f,&lambert);
+	scn.addObject(ground);
 
-// Create lights
-DirectLight sunlgt;
-sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
-sunlgt.setIntensity(1.0f);
-sunlgt.setDirection(glm::vec3 (2.0f, -3.0f, -2.0f));
-scn.addLight(sunlgt);
+	// Create lights
+	DirectLight sunlgt;
+	sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
+	sunlgt.setIntensity(1.0f);
+	sunlgt.setDirection(glm::vec3 (2.0f, -3.0f, -2.0f));
+	scn.addLight(sunlgt);
 
-// Create camera
-Camera cam;
-cam.lookAt(glm::vec3(-0.5f, 0.25f, -0.2f), glm::vec3(0.0f, 0.15f, -0.15f), vec3(0.0f, 1.0f, 0.0f));
-cam.setFOV(40.0f);
-cam.setAspect(1.33f);
-cam.setResolution(800, 600);
-cam.setSuperSample(10,10);
-cam.setJitter(true);
-cam.setShirley(true);
+	// Create camera
+	Camera cam;
+	cam.lookAt(glm::vec3(-0.5f, 0.25f, -0.2f), glm::vec3(0.0f, 0.15f, -0.15f), vec3(0.0f, 1.0f, 0.0f));
+	cam.setFOV(40.0f);
+	cam.setAspect(1.33f);
+	cam.setResolution(800, 600);
+	cam.setSuperSample(10,10);
+	cam.setJitter(true);
+	cam.setShirley(true);
 
-// Render image
-cam.render(scn);
-cam.saveBitmap("project4.bmp");
+	// Render image
+	cam.render(scn);
+	cam.saveBitmap("project4.bmp");
 
 }
 
@@ -495,28 +496,54 @@ void sphereTest() {
 	EmissionMaterial areaLight;
 	areaLight.setColor(Color(8.0f, 8.0f, 8.0f));
 
+	DieletricMaterial glass;
+	glass.setColor(Color(0.4f, 0.6f, 0.6f));
+	glass.setIndex(1.7f);
+
 	Sphere s1;
 	vec3 center1 = vec3(0.0f, 0.115f, 0.2f);
-	s1.init(center1, 0.06f, &pink);
+	s1.init(center1, 0.06f, &glass);
 	scn.addObject(s1);
 
-	Triangle light1;
-	Triangle light2;
+	// Triangle light1;
+	// Triangle light2;
+	// Vertex v0, v1, v2, v3;
+	// vec3 pos0 = vec3(-0.1f, 0.28f, 0.19f);
+	// vec3 pos1 = vec3(0.1f, 0.28f, 0.19f);
+	// vec3 pos2 = vec3(0.1f, 0.28f, 0.21f);
+	// vec3 pos3 = vec3(-0.1f, 0.28f, 0.21f);
+	// vec3 norm = vec3(0.0f, -1.0f, 0.0f);
+	// vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
+	// v0.set(pos0, norm, tCoord);
+	// v1.set(pos1, norm, tCoord);
+	// v2.set(pos2, norm, tCoord);
+	// v3.set(pos3, norm, tCoord);
+	// light1.init(&v0, &v1, &v2, &areaLight);
+	// light2.init(&v2, &v3, &v0, &areaLight);
+	// scn.addObject(light1);
+	// scn.addObject(light2);
+
+	Triangle t0;
+	Triangle t1;
 	Vertex v0, v1, v2, v3;
-	vec3 pos0 = vec3(-0.1f, 0.28f, 0.19f);
-	vec3 pos1 = vec3(0.1f, 0.28f, 0.19f);
-	vec3 pos2 = vec3(0.1f, 0.28f, 0.21f);
-	vec3 pos3 = vec3(-0.1f, 0.28f, 0.21f);
+	vec3 pos0 = vec3(-0.1f, 0.485f, -0.1f);
+	vec3 pos1 = vec3(0.1f, 0.485f, -0.1f);
+	vec3 pos2 = vec3(0.1f, 0.485f, 0.1f);
+	vec3 pos3 = vec3(-0.1f, 0.485f, 0.1f);
 	vec3 norm = vec3(0.0f, -1.0f, 0.0f);
 	vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
 	v0.set(pos0, norm, tCoord);
 	v1.set(pos1, norm, tCoord);
 	v2.set(pos2, norm, tCoord);
 	v3.set(pos3, norm, tCoord);
-	light1.init(&v0, &v1, &v2, &areaLight);
-	light2.init(&v2, &v3, &v0, &areaLight);
-	scn.addObject(light1);
-	scn.addObject(light2);
+	t0.init(&v0, &v1, &v2, 0);
+	t1.init(&v2, &v3, &v0, 0);
+
+	AreaLight sqrlight;
+	sqrlight.setBaseColor(Color(0.9f, 1.0f, 1.0f));
+	sqrlight.setIntensity(0.3f);
+	sqrlight.setAreaTris(&t0, &t1);
+	scn.addLight(sqrlight);
 
 	// Sphere light;
 	// vec3 center2 = vec3(0.0f, 0.27f, 0.2f);
@@ -536,14 +563,14 @@ void sphereTest() {
 	cam.setAspect(1.33f);
 	cam.lookAt(glm::vec3(0.0f, 0.15f, -0.2f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(40,40);
+	cam.setSuperSample(3,3);
 	//cam.setDOF(0.01f, 0.45f);
 	cam.setJitter(true);
 	cam.setShirley(true);
 
 	// Render image
 	cam.render(scn);
-	cam.saveBitmap("sphere_pink.bmp");
+	cam.saveBitmap("sphere_glass.bmp");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -565,6 +592,10 @@ void room() {
 
 	LambertMaterial pink;
 	pink.setColor(Color(1.0f,0.59f,0.8f));
+
+	DieletricMaterial glass;
+	glass.setColor(Color(0.9f, 0.9f, 0.9f));
+	glass.setIndex(1.5f);
 
 	///
 	MeshObject fb;
@@ -621,7 +652,7 @@ void room() {
 	///
 	Sphere s1;
 	vec3 center1 = vec3(0.0f, -0.2f, 0.0f);
-	s1.init(center1, 0.3f, &pink);
+	s1.init(center1, 0.3f, &glass);
 	scn.addObject(s1);
 
 
@@ -661,5 +692,5 @@ void room() {
 
 	// Render image
 	cam.render(scn);
-	cam.saveBitmap("room_multi.bmp");
+	cam.saveBitmap("room_glass.bmp");
 }

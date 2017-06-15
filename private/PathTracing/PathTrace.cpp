@@ -29,8 +29,6 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
 
   for(int i = 0; i < scene->getNumLights(); i++) {
     Light* light = scene->getLight(i);
-    //std::cout << "sample light" << std::endl;
-    //std::cout << "check shadow" << std::endl;
 
     vec3 toLight;
     float lightDis;
