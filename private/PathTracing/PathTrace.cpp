@@ -14,7 +14,6 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
   Color directLight = Color::BLACK;
   Color indirectColor = Color::BLACK;
 
-
   if(scene->intersect(ray, hit) == false) {
     hit.shade = scene->getSkyColor();
     return false;
@@ -30,12 +29,17 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
 
   for(int i = 0; i < scene->getNumLights(); i++) {
     Light* light = scene->getLight(i);
+    //std::cout << "sample light" << std::endl;
+    //std::cout << "check shadow" << std::endl;
 
-    if(isBlocked(hit, light, time)) continue;
+    vec3 toLight;
+    float lightDis;
+    float intensity = light->computeIntensity(hit.pos, hit.norm, toLight, lightDis);
 
-    directLight = light->computeIntensity(hit.pos, hit.norm) * (light->getBaseColor());
-    vec3 lightDir = light->computeToLightDir(hit.pos);
-    hit.shade += directLight * hit.mtl->computeReflectance(hit, lightDir, -ray.dir);
+    if(isBlocked(hit, toLight, lightDis, time)) continue;
+
+    directLight = intensity * (light->getBaseColor());
+    hit.shade += directLight * hit.mtl->computeReflectance(hit, toLight, -ray.dir);
   }
 
   if(depth == maxDepth) return true;
@@ -58,16 +62,14 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
   return true;
 }
 
-bool PathTrace::isBlocked(Intersection& hit, Light* light, float time) {
+bool PathTrace::isBlocked(Intersection& hit, const vec3& toLight, const float lightDis, float time) {
   Ray shadowRay;
-  vec3 dir = light->computeToLightDir(hit.pos);
-  shadowRay.org = hit.pos + 0.001f * dir;
-  shadowRay.dir = dir;
+  shadowRay.org = hit.pos + 0.001f * toLight;
+  shadowRay.dir = toLight;
   shadowRay.t = time;
 
   Intersection shadowHit;
   if(scene->intersect(shadowRay, shadowHit)) {
-    float lightDis = light->computeToLightDis(hit.pos);
     if( 0 < shadowHit.hitDis && shadowHit.hitDis < lightDis) {
         return true;
     }

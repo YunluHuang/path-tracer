@@ -14,10 +14,12 @@ private:
   int secondaryRays;
   int shadowRays;
 
-  bool isBlocked(Intersection& hit, Light* light, float time);
+  // bool isBlocked(Intersection& hit, Light* light, float time);
+  bool isBlocked(Intersection& hit, const vec3& toLight, const float lightDis, float time);
 
 public:
   PathTrace(Scene& scene);
 
   bool traceRay(Ray& ray, Intersection& hit, int depth=1);
+
 };

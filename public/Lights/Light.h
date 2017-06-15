@@ -21,7 +21,5 @@ public:
   Color getBaseColor();
   float getIntensity();
 
-  virtual float computeIntensity(const vec3 &pos, const vec3 &norm) = 0;
-  virtual vec3 computeToLightDir(const vec3 &pos) = 0;
-  virtual float computeToLightDis(const vec3 &pos)=0;
+  virtual float computeIntensity(const vec3& pos, const vec3& norm, vec3& dir, float& dis)= 0;
 };
