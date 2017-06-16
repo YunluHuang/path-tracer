@@ -10,7 +10,7 @@ void LambertMaterial::setColor(const Color& c) {
   diffuse = c;
 }
 
-void LambertMaterial::generateSample(const Intersection &hit, const vec3 &in,
+void LambertMaterial::generateSample(const Intersection &hit, Ray &in,
   Color &col, vec3 &out) {
 
   float s = rand.next();

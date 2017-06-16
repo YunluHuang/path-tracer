@@ -33,10 +33,13 @@ MeshObject::~MeshObject() {
 
 bool MeshObject::intersect(const Ray &ray, Intersection &hit) {
 	bool success = false;
-	for(int i = 0; i < numTriangles; i++)
+	for(int i = 0; i < numTriangles; i++) {
+		// std::cout << "test" << std::endl;
 		if(triangles[i].intersect(ray, hit)){
+			// std::cout << "hit" << std::endl;
 			success = true;
 		}
+	}
 	return success;
 }
 
@@ -132,6 +135,53 @@ void MeshObject::makeBox(float x, float y, float z, Material *mtl) {
 	triangles[11].init(&vertexes[20], &vertexes[22], &vertexes[23], mtl);
 }
 
+void MeshObject::makeGem(float x, float y, float z, Material *mtl) {
+	numVertexes = 5;
+	numTriangles = 6;
+	vertexes = new Vertex[numVertexes];
+	triangles = new Triangle[numTriangles];
+	if(mtl == nullptr) mtl = new LambertMaterial;
+
+	float w = x / 2.0f;
+	float l = z / 2.0f;
+
+	vec3 p0, p1, p2, p3, p4;
+	p0 = vec3(-w, 0.0f, 0.0f);
+	p1 = vec3(w, 0.0f, 0.0f);
+	p2 = vec3(w, 0.0f, -z);
+	p3 = vec3(-w, 0.0f, -z);
+	p4 = vec3(0.0f, y, -l);
+
+	Vertex v0, v1, v2, v3, v4;
+	vec3 zero = vec3(0);
+	v0.set(p0, zero, zero);
+	v1.set(p1, zero, zero);
+	v2.set(p2, zero, zero);
+	v3.set(p3, zero, zero);
+	v4.set(p4, zero, zero);
+
+	vertexes[0].set(p0, zero, zero);
+	vertexes[1].set(p1, zero, zero);
+	vertexes[2].set(p2, zero, zero);
+	vertexes[3].set(p3, zero, zero);
+	vertexes[4].set(p4, zero, zero);
+
+	Triangle t0, t1, t2, t3, t4, t5;
+	t0.init(&v0, &v1, &v4, mtl);
+	t1.init(&v1, &v2, &v4, mtl);
+	t2.init(&v2, &v3, &v4, mtl);
+	t3.init(&v3, &v0, &v4, mtl);
+	t4.init(&v0, &v3, &v2, mtl);
+	t5.init(&v0, &v2, &v1, mtl);
+
+	triangles[0].init(&vertexes[0], &vertexes[1], &vertexes[4], mtl);
+	triangles[1].init(&vertexes[1], &vertexes[2], &vertexes[4], mtl);
+	triangles[2].init(&vertexes[2], &vertexes[3], &vertexes[4], mtl);
+	triangles[3].init(&vertexes[3], &vertexes[0], &vertexes[4], mtl);
+	triangles[4].init(&vertexes[0], &vertexes[3], &vertexes[2], mtl);
+	triangles[5].init(&vertexes[0], &vertexes[2], &vertexes[1], mtl);
+
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 bool MeshObject::loadPLY(const char *filename, Material *mtl) {
@@ -171,6 +221,7 @@ bool MeshObject::loadPLY(const char *filename, Material *mtl) {
 	int i = 0;
 	if(numverts > 0) {
 		numVertexes = numverts;
+		// std::cout << numVertexes << " vertexes" << std::endl;
 		vertexes = new Vertex[numVertexes];
 
 		for(i = 0; i < numVertexes; i++) {
@@ -181,9 +232,15 @@ bool MeshObject::loadPLY(const char *filename, Material *mtl) {
 				if(prop == posprop) vertexes[i].pos.x = float(atof(pch));
 				if(prop == posprop + 1) vertexes[i].pos.y = float(atof(pch));
 				if(prop == posprop + 2) vertexes[i].pos.z = float(atof(pch));
-				if(prop == normprop) vertexes[i].norm.x = float(atof(pch));
-				if(prop == normprop + 1) vertexes[i].norm.y = float(atof(pch));
-				if(prop == normprop + 2) vertexes[i].norm.z = float(atof(pch));
+				if(prop == normprop)
+					// atof(pch);
+					vertexes[i].norm.x = -float(atof(pch));
+				if(prop == normprop + 1)
+					// atof(pch);
+					vertexes[i].norm.y = -float(atof(pch));
+				if(prop == normprop + 2)
+					// atof(pch);
+					vertexes[i].norm.z = -float(atof(pch));
 				pch = strtok(0," ");
 				prop++;
 			}

@@ -18,6 +18,7 @@ public:
   int getNumTriangles();
 
 	void makeBox(float x, float y, float z, Material *mtl=0);
+  void makeGem(float x, float y, float z, Material *mtl=0);
   bool loadPLY(const char *filename, Material *mtl);
   void smooth();
 };

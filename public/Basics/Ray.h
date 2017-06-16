@@ -9,4 +9,5 @@ public:
   vec3 org;
   vec3 dir;
   float t;
+  float ior = -1.0f;
 };

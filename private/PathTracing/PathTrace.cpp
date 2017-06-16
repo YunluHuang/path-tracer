@@ -44,14 +44,14 @@ bool PathTrace::traceRay(Ray& ray, Intersection& hit, int depth) {
 
   Color outColor;
   vec3 outDir;
-  vec3 inDir = normalize(-ray.dir);
-  hit.mtl->generateSample(hit, inDir, outColor, outDir);
+  hit.mtl->generateSample(hit, ray, outColor, outDir);
 
   Intersection newHit;
   Ray newRay;
   newRay.org = hit.pos + 0.001f * outDir;
   newRay.dir = outDir;
   newRay.t = time;
+  newRay.ior = ray.ior;
   traceRay(newRay, newHit, depth + 1);
   indirectColor = newHit.shade * outColor;
 

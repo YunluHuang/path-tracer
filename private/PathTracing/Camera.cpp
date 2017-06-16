@@ -89,10 +89,11 @@ void Camera::render(Scene& scene) {
   tileLock.unlock();
 
   double timer = getTime();
-  std::cout<<"rendering:"<<std::endl;
+  // std::cout<<"rendering:"<<std::endl;
 
   std::thread * threads[THREAD_NUM];
   for(int i = 0; i < THREAD_NUM; i++) {
+    std::cout << i << std::endl;
     threads[i] = new std::thread([=](){
       while(1) {
         tileLock.lock();
@@ -248,6 +249,7 @@ Ray * Camera::generateRays(int x, int y) {
 }
 
 void Camera::renderPixel(int x, int y) {
+  //std::cout << "render: " << x << ", " << y << std::endl;
   Ray* rays = generateRays(x, y);
   Color finalColor = Color(0, 0, 0);
 

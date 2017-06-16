@@ -15,7 +15,7 @@ void AshikhminMaterial::setColor(const Color &c) {
   return;
 }
 
-void AshikhminMaterial::generateSample(const Intersection &hit, const vec3 &in,
+void AshikhminMaterial::generateSample(const Intersection &hit, Ray &in,
   Color &col, vec3 &out) {
       // generate k1
       float i = rand.next();
@@ -39,13 +39,13 @@ void AshikhminMaterial::generateSample(const Intersection &hit, const vec3 &in,
         vec3 h = cosTheta * n + sinTheta * (cosf(phi) * x + sinf(phi) * y);
 
         h = normalize(h);
-        vec3 k2 = -in + 2.0f * dot(in, h) * h;
+        vec3 k2 = in.dir + 2.0f * dot(-in.dir, h) * h;
         out = normalize(k2);
         if(dot(n, k2) < 0.0f) {
           col = Color::BLACK;
         } else {
           float phh = (sqrt((nu + 1.0f) * (nv + 1.0f)) / 2.0f) * pow(dot(n, h), nu * cosf(phi) * cosf(phi) + nv * sinf(phi) * sinf(phi));
-          float pk2 = phh / (4.0f * dot(in, h));
+          float pk2 = phh / (4.0f * dot(-in.dir, h));
           col = specular * specularLvl;
         }
       } else {

@@ -10,6 +10,8 @@ public:
   vec3 norm;
   vec3 tCoord;
 
+  bool hasNorm;
+
 public:
   Vertex();
   void set(const vec3 &pos, const vec3 &norm, const vec3 &tCoord);

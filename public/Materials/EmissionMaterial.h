@@ -8,7 +8,7 @@ private:
 
 public:
   virtual void setColor(const Color &c);
-  virtual void generateSample(const Intersection &hit, const vec3 &in,
+  virtual void generateSample(const Intersection &hit, Ray &in,
     Color &col, vec3 &out){};
   virtual Color computeReflectance(const Intersection &hit, const vec3 &in,
     const vec3 &out);

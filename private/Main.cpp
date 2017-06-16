@@ -20,6 +20,7 @@
 #include "AshikhminMaterial.h"
 #include "EmissionMaterial.h"
 #include "DieletricMaterial.h"
+#include "DispersionMaterial.h"
 
 #include "Random.h"
 
@@ -35,15 +36,309 @@ void randomGeneratorTest();
 void messup();
 void sphereTest();
 void room();
+void project5();
+void pear();
+void dragonBox();
+void photon();
 
 int main() {
-	room();
+	project3();
 	// project3();
 	return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void photon() {
+	Scene scn;
+	scn.setSkyColor(Color(0.8f, 0.8f, 0.9f));
 
+	//make ground
+	LambertMaterial groundMtl;
+	groundMtl.setColor(Color(0.25f, 0.25f, 0.25f));
+	MeshObject ground;
+	ground.makeBox(1.0f, 0.02f, 1.0f, &groundMtl);
+	scn.addObject(ground);
+
+	//add dragon
+	MeshObject d;
+	d.loadPLY("ply/dragon.ply", 0);
+	AABBTree tree;
+	tree.construct(d);
+
+	DieletricMaterial glass;
+	glass.setColor(Color(0.9f, 0.9f, 0.9f));
+	glass.setIndex(1.8f);
+
+	DispersionMaterial gem;
+	gem.setColor(Color(0.9f, 0.9f, 0.9f));
+	gem.setIndex(1.42f, 0.0035f);
+
+	InstanceObject dragon(tree);
+	mat4 dm = mat4();
+	dm[3] = vec4(0.0f, -0.05f, -0.2f, 1.0f);
+	dragon.setMatrix(dm);
+	dragon.setMaterial(&gem);
+	scn.addObject(dragon);
+
+	PointLight lgt;
+	lgt.setBaseColor(Color(1.0f, 1.0f, 1.0f));
+	lgt.setIntensity(0.5f);
+	lgt.setPosition(glm::vec3(0.0f, 0.5f, 0.0f));
+	scn.addLight(lgt);
+
+	Camera cam;
+	cam.setResolution(512,512);
+	cam.setAspect(1.0f);
+	cam.lookAt(glm::vec3(0.0f,0.2f, -0.6f),glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0,1.0f,0));
+	cam.setFOV(40.0f);
+	cam.setSuperSample(20, 20);
+	//cam.setDOF(0.05f, 0.42f);
+	cam.setJitter(true);
+	cam.setShirley(true);
+	// Render image
+	cam.render(scn);
+	cam.saveBitmap("final.bmp");
+
+}
+
+void project5() {
+
+	//scene
+	Scene scn;
+	scn.setSkyColor(Color::BLACK);
+	// scn.setSkyColor(Color(0.5f, 0.5f, 0.65f));
+
+	//light box
+	MeshObject slack;
+	slack.makeBox(0.5f, 0.5f, 0.01f, 0);
+
+	InstanceObject front = InstanceObject(slack);
+
+	InstanceObject back = InstanceObject(slack);
+	mat4 bm = mat4();
+	bm[3] = vec4(0.0f, 0.0f, -0.5f, 1.0f);
+	back.setMatrix(bm);
+
+	InstanceObject top = InstanceObject(slack);
+	mat4 tm = glm::rotate(mat4(), PI / 2.0f, vec3(1, 0, 0));
+	tm[3] = vec4(0.0f, 0.25f, -0.25f, 1.0f);
+	top.setMatrix(tm);
+
+	MeshObject ground;
+	ground.makeBox(5.0f, 0.01f, 5.0f);
+	InstanceObject bottom = InstanceObject(ground);
+	mat4 btm = mat4();
+	btm[3] = vec4(0.0f, -0.25f, 0.0f, 1.0f);
+	// mat4 btm = glm::rotate(mat4(), PI / 2.0f, vec3(1, 0, 0));
+	// glm::scale(btm, vec3(5, 5, 5));
+	// btm[3] = vec4(0.0f, -0.25f, -0.25f, 1.0f);
+	bottom.setMatrix(btm);
+
+	InstanceObject left = InstanceObject(slack);
+	mat4 lm = glm::rotate(mat4(), PI/2.0f, vec3(0, 1, 0));
+	lm[3] = vec4(-0.25f, 0.0f, -0.25f, 1.0f);
+	left.setMatrix(lm);
+
+	MeshObject cover;
+	cover.makeBox(0.22f, 0.5f, 0.01f, 0);
+
+	InstanceObject leftCover = InstanceObject(cover);
+	mat4 lcm = glm::rotate(mat4(), PI/2.0f, vec3(0, 1, 0));
+	lcm[3] = vec4(0.25f, 0.0f, -0.11f, 1.0f);
+	leftCover.setMatrix(lcm);
+
+	InstanceObject rightCover = InstanceObject(cover);
+	mat4 rcm = glm::rotate(mat4(), PI/2.0f, vec3(0, 1, 0));
+	rcm[3] = vec4(0.25f, 0.0f, -0.39f, 1.0f);
+	rightCover.setMatrix(rcm);
+
+	//add light box to scene
+	// scn.addObject(front);
+	// scn.addObject(back);
+	// scn.addObject(top);
+	scn.addObject(bottom);
+	// scn.addObject(left);
+	// scn.addObject(leftCover);
+	// scn.addObject(rightCover);
+
+	//add light into box
+	EmissionMaterial areaLight;
+	areaLight.setColor(Color(8.0f, 8.0f, 8.0f));
+
+	Triangle t0;
+	Triangle t1;
+	Vertex v0, v1, v2, v3;
+	vec3 pos0 = vec3(0.26f, 0.24f, -0.2f);
+	vec3 pos1 = vec3(0.26f, -0.24f, -0.2f);
+	vec3 pos2 = vec3(0.26f, -0.24f, -0.3f);
+	vec3 pos3 = vec3(0.26f, 0.24f, -0.3f);
+	vec3 norm = vec3(1.0f, 0.0f, 0.0f);
+	vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
+	v0.set(pos0, norm, tCoord);
+	v1.set(pos1, norm, tCoord);
+	v2.set(pos2, norm, tCoord);
+	v3.set(pos3, norm, tCoord);
+	t0.init(&v0, &v1, &v2, &areaLight);
+	t1.init(&v2, &v3, &v0, &areaLight);
+	scn.addObject(t0);
+	scn.addObject(t1);
+
+	AreaLight sqrlight;
+	sqrlight.setBaseColor(Color(0.9f, 1.0f, 1.0f));
+	sqrlight.setIntensity(5.0f);
+	sqrlight.setAreaTris(&t0, &t1);
+	scn.addLight(sqrlight);
+
+	// //add sunlight
+	// DirectLight sunlgt;
+	// sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
+	// sunlgt.setIntensity(0.5f);
+	// sunlgt.setDirection(glm::vec3(-0.5f, -1.0f, -0.5f));
+	// scn.addLight(sunlgt);
+
+	DieletricMaterial glass;
+	glass.setColor(Color(0.9f, 0.9f, 0.95f));
+	glass.setIndex(1.8f);
+
+	//add sphere
+	Sphere s;
+	vec3 center = vec3(0.7f, -0.2f, -0.25f);
+	s.init(center, 0.05f, &glass);
+	//scn.addObject(s);
+
+	// LambertMaterial red;
+	// red.setColor(Color::RED);
+	MeshObject prism;
+	prism.makeGem(0.2, 0.2, 0.2, &glass);
+	// scn.addObject(prism);
+	InstanceObject crystal =  InstanceObject(prism);
+	mat4 cm = mat4();
+	cm[3] = vec4(0.7f, -0.25f, -0.23f, 1.0f);
+	crystal.setMatrix(cm);
+	// scn.addObject(crystal);
+
+	//add dragon
+	MeshObject dragon;
+	dragon.loadPLY("ply/dragon.ply", &glass);
+	dragon.smooth();
+	AABBTree tree;
+	tree.construct(dragon);
+
+	//Create instance
+	InstanceObject dragonInst(tree);
+	mat4 dm = glm::rotate(mat4(), PI / 3.0f, vec3(0, 1, 0));
+	glm::scale(dm, vec3(15, 15, 15));
+	dm[3]=glm::vec4(0.6f,-0.3f, -0.2f, 1.0f);
+	dragonInst.setMatrix(dm);
+	scn.addObject(dragonInst);
+
+	//set Camera
+	Camera cam;
+	cam.setResolution(512,512);
+	cam.setAspect(1.0f);
+	cam.lookAt(glm::vec3(1.0f, 0.0f, 0.6f),glm::vec3(0.5f,0.0f, -0.2f),glm::vec3(0, 1.0f, 0));
+	cam.setFOV(40.0f);
+	cam.setSuperSample(10, 10);
+	cam.setJitter(true);
+	cam.setShirley(true);
+
+	cam.render(scn);
+	cam.saveBitmap("test-lightbox.bmp");
+}
+
+void dragonBox() {
+	Scene scn;
+	scn.setSkyColor(Color(0.8f, 0.8f, 0.9f));
+
+	LambertMaterial groundMtl;
+	groundMtl.setColor(Color(0.5f, 0.5f, 0.5f));
+	MeshObject ground;
+	ground.makeBox(5.0f, 0.001f, 5.0f, &groundMtl);
+	scn.addObject(ground);
+
+	AshikhminMaterial redPlastic;
+	redPlastic.setDiffuseColor(Color(1.0f, 0.1f, 0.1f));
+	redPlastic.setDiffuseLevel(0.8f);
+	redPlastic.setSpecularLevel(0.2f);
+	redPlastic.setSpecularColor(Color(1.0f, 1.0f, 1.0f));
+	redPlastic.setRoughness(1000.0f, 1000.0f);
+
+	DieletricMaterial glass;
+	glass.setColor(Color(0.8f, 0.8f, 0.8f));
+	glass.setIndex(1.8f);
+
+	//create dragon
+	MeshObject dragon;
+	dragon.loadPLY("ply/dragon.ply", &redPlastic);
+	dragon.smooth();
+	AABBTree tree;
+	tree.construct(dragon);
+
+	//Create instance
+	InstanceObject dragonInst(tree);
+	mat4 dm = glm::rotate(mat4(), PI / -1.8f, vec3(0, 1, 0));
+	dm[3]=glm::vec4(-0.05f,-0.05f,0.2f,1.0f);
+	dragonInst.setMatrix(dm);
+	scn.addObject(dragonInst);
+
+	//create box
+	MeshObject b;
+	b.makeBox(0.05f, 0.05f, 0.05f, &glass);
+
+	InstanceObject box(b);
+	mat4 bm = mat4();
+	bm[3] = glm::vec4(-0.2f, 0.06f, 0.1f, 1.0f);
+	box.setMatrix(bm);
+	scn.addObject(box);
+
+	EmissionMaterial areaLight;
+	areaLight.setColor(Color(1.0f, 1.0f, 1.0f));
+
+	Triangle t0;
+	Triangle t1;
+	Vertex v0, v1, v2, v3;
+	vec3 pos0 = vec3(-0.1f, 0.2f, -0.1f);
+	vec3 pos1 = vec3(0.1f, 0.2f, -0.1f);
+	vec3 pos2 = vec3(0.1f, 0.2f, 0.1f);
+	vec3 pos3 = vec3(-0.1f, 0.2f, 0.1f);
+	vec3 norm = vec3(0.0f, -1.0f, 0.0f);
+	vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
+	v0.set(pos0, norm, tCoord);
+	v1.set(pos1, norm, tCoord);
+	v2.set(pos2, norm, tCoord);
+	v3.set(pos3, norm, tCoord);
+	t0.init(&v0, &v1, &v2, &areaLight);
+	t1.init(&v2, &v3, &v0, &areaLight);
+	scn.addObject(t0);
+	scn.addObject(t1);
+
+	AreaLight sqrlight;
+	sqrlight.setBaseColor(Color(0.9f, 1.0f, 1.0f));
+	sqrlight.setIntensity(5.0f);
+	sqrlight.setAreaTris(&t0, &t1);
+	scn.addLight(sqrlight);
+
+	// DirectLight sunlgt;
+	// sunlgt.setBaseColor(Color(1.0f, 1.0f, 0.9f));
+	// sunlgt.setIntensity(1.0f);
+	// sunlgt.setDirection(glm::vec3(2.0f, -3.0f, -2.0f));
+	// scn.addLight(sunlgt);
+
+	Camera cam;
+	cam.setResolution(640,480);
+	cam.setAspect(1.33f);
+	cam.lookAt(glm::vec3(-0.6f,0.1f,0.1f),glm::vec3(0.0f,0.1f,0.2f),glm::vec3(0, 1.0f, 0));
+	cam.setFOV(40.0f);
+	cam.setSuperSample(2, 2);
+	//cam.setDOF(0.05f, 0.42f);
+	cam.setJitter(true);
+	cam.setShirley(true);
+
+	// Render image
+	cam.render(scn);
+	cam.saveBitmap("drgonbox.bmp");
+
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 void randomGeneratorTest() {
@@ -478,12 +773,12 @@ void sphereTest() {
 	// Create scene
 	Scene scn;
 	// scn.setSkyColor(Color(0.8f, 0.9f, 1.0f));
-	scn.setSkyColor(Color(0.71f, 0.8f, 0.8f));
+	scn.setSkyColor(Color(0.9f, 0.9f, 1.0f));
 
 
 	// Create ground
 	LambertMaterial groundMtl;
-	groundMtl.setColor(Color(0.5f, 0.5f, 0.5f));
+	groundMtl.setColor(Color(0.2f, 0.2f, 0.2f));
 	MeshObject ground;
 	ground.makeBox(2.0f, 0.1f, 2.0f, &groundMtl);
 	scn.addObject(ground);
@@ -497,53 +792,64 @@ void sphereTest() {
 	areaLight.setColor(Color(8.0f, 8.0f, 8.0f));
 
 	DieletricMaterial glass;
-	glass.setColor(Color(0.4f, 0.6f, 0.6f));
+	glass.setColor(Color(0.8f, 0.9f, 0.9f));
 	glass.setIndex(1.7f);
+	//
+	// Sphere s1;
+	// vec3 center1 = vec3(0.0f, 0.115f, 0.2f);
+	// s1.init(center1, 0.06f, &glass);
+	// scn.addObject(s1);
 
-	Sphere s1;
-	vec3 center1 = vec3(0.0f, 0.115f, 0.2f);
-	s1.init(center1, 0.06f, &glass);
-	scn.addObject(s1);
+	MeshObject window;
+	window.makeBox(0.2f, 0.2f, 0.01f, &glass);
+	InstanceObject windowInstance = InstanceObject(window);
+	glm::mat4 windowMtx=glm::rotate(glm::mat4(),(float)M_PI / 3.2f,glm::vec3(1,0,0));
+	glm::rotate(windowMtx,(float)M_PI / 3.0f ,glm::vec3(0,1,0));
+	windowMtx[3] = vec4(0.0f, 0.23f, 0.0f, 1.0f);
+	windowInstance.setMatrix(windowMtx);
+	scn.addObject(windowInstance);
 
-	// Triangle light1;
-	// Triangle light2;
-	// Vertex v0, v1, v2, v3;
-	// vec3 pos0 = vec3(-0.1f, 0.28f, 0.19f);
-	// vec3 pos1 = vec3(0.1f, 0.28f, 0.19f);
-	// vec3 pos2 = vec3(0.1f, 0.28f, 0.21f);
-	// vec3 pos3 = vec3(-0.1f, 0.28f, 0.21f);
-	// vec3 norm = vec3(0.0f, -1.0f, 0.0f);
-	// vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
-	// v0.set(pos0, norm, tCoord);
-	// v1.set(pos1, norm, tCoord);
-	// v2.set(pos2, norm, tCoord);
-	// v3.set(pos3, norm, tCoord);
-	// light1.init(&v0, &v1, &v2, &areaLight);
-	// light2.init(&v2, &v3, &v0, &areaLight);
-	// scn.addObject(light1);
-	// scn.addObject(light2);
-
-	Triangle t0;
-	Triangle t1;
+	Triangle light1;
+	Triangle light2;
 	Vertex v0, v1, v2, v3;
-	vec3 pos0 = vec3(-0.1f, 0.485f, -0.1f);
-	vec3 pos1 = vec3(0.1f, 0.485f, -0.1f);
-	vec3 pos2 = vec3(0.1f, 0.485f, 0.1f);
-	vec3 pos3 = vec3(-0.1f, 0.485f, 0.1f);
+	vec3 pos0 = vec3(-0.1f, 0.5f, 0.19f);
+	vec3 pos1 = vec3(0.1f, 0.5f, 0.19f);
+	vec3 pos2 = vec3(0.1f, 0.5f, 0.21f);
+	vec3 pos3 = vec3(-0.1f, 0.5f, 0.21f);
 	vec3 norm = vec3(0.0f, -1.0f, 0.0f);
 	vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
 	v0.set(pos0, norm, tCoord);
 	v1.set(pos1, norm, tCoord);
 	v2.set(pos2, norm, tCoord);
 	v3.set(pos3, norm, tCoord);
-	t0.init(&v0, &v1, &v2, 0);
-	t1.init(&v2, &v3, &v0, 0);
+	light1.init(&v0, &v1, &v2, &areaLight);
+	light2.init(&v2, &v3, &v0, &areaLight);
+	scn.addObject(light1);
+	scn.addObject(light2);
 
-	AreaLight sqrlight;
-	sqrlight.setBaseColor(Color(0.9f, 1.0f, 1.0f));
-	sqrlight.setIntensity(0.3f);
-	sqrlight.setAreaTris(&t0, &t1);
-	scn.addLight(sqrlight);
+	// Triangle t0;
+	// Triangle t1;
+	// Vertex v0, v1, v2, v3;
+	// vec3 pos0 = vec3(-0.1f, 0.485f, -0.1f);
+	// vec3 pos1 = vec3(0.1f, 0.485f, -0.1f);
+	// vec3 pos2 = vec3(0.1f, 0.485f, 0.1f);
+	// vec3 pos3 = vec3(-0.1f, 0.485f, 0.1f);
+	// vec3 norm = vec3(0.0f, -1.0f, 0.0f);
+	// vec3 tCoord = vec3(0.0f, 0.0f, 0.0f);
+	// v0.set(pos0, norm, tCoord);
+	// v1.set(pos1, norm, tCoord);
+	// v2.set(pos2, norm, tCoord);
+	// v3.set(pos3, norm, tCoord);
+	// t0.init(&v0, &v1, &v2, &areaLight);
+	// t1.init(&v2, &v3, &v0, &areaLight);
+	// scn.addObject(t0);
+	// scn.addObject(t1);
+	//
+	// AreaLight sqrlight;
+	// sqrlight.setBaseColor(Color(0.9f, 1.0f, 1.0f));
+	// sqrlight.setIntensity(0.3f);
+	// sqrlight.setAreaTris(&t0, &t1);
+	// scn.addLight(sqrlight);
 
 	// Sphere light;
 	// vec3 center2 = vec3(0.0f, 0.27f, 0.2f);
@@ -561,9 +867,9 @@ void sphereTest() {
 	Camera cam;
 	cam.setResolution(640,480);
 	cam.setAspect(1.33f);
-	cam.lookAt(glm::vec3(0.0f, 0.15f, -0.2f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
+	cam.lookAt(glm::vec3(0.0f, 0.2f, -1.0f),glm::vec3(0.0f,0.15f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(3,3);
+	cam.setSuperSample(5,5);
 	//cam.setDOF(0.01f, 0.45f);
 	cam.setJitter(true);
 	cam.setShirley(true);
@@ -695,7 +1001,7 @@ void room() {
 	cam.setAspect(1.0f);
 	cam.lookAt(glm::vec3(0.0f, 0.0f, 1.8f),glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0, 1.0f, 0));
 	cam.setFOV(40.0f);
-	cam.setSuperSample(5, 5);
+	cam.setSuperSample(50, 50);
 	//cam.setDOF(0.01f, 0.45f);
 	cam.setJitter(true);
 	cam.setShirley(true);

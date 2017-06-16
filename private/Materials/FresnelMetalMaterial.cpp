@@ -8,11 +8,11 @@ void FresnelMetalMaterial::setColor(const Color &c) {
   k = 2.63;
 }
 
-void FresnelMetalMaterial::generateSample(const Intersection &hit, const vec3 &in,
+void FresnelMetalMaterial::generateSample(const Intersection &hit, Ray &in,
   Color &col, vec3 &out) {
   //for indentation
-  out = 2 * std::abs(dot(in, hit.norm)) * hit.norm - in;
-  float nd = std::abs(dot(hit.norm, in));
+  out = 2 * std::abs(dot(-in.dir, hit.norm)) * hit.norm + in.dir;
+  float nd = std::abs(dot(hit.norm, -in.dir));
   float nk = (n * n + k * k);
   float r1 = ((nk * nd * nd) - 2 * n * nd + 1) /
              ((nk * nd * nd) + 2 * n * nd + 1);
@@ -20,7 +20,7 @@ void FresnelMetalMaterial::generateSample(const Intersection &hit, const vec3 &i
              (nk + nd * nd + 2 * n * nd);
   float fr = 0.5f * (r1 + r2);
 
-  if(dot(in, hit.norm) <= 0) fr = 0.0;
+  if(dot(-in.dir, hit.norm) <= 0) fr = 0.0;
 
   col.set(metalColor);
 }

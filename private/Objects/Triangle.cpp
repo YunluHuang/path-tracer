@@ -47,11 +47,11 @@ bool Triangle::intersect(const Ray& ray, Intersection& hit) {
       if(hitDis < hit.hitDis) {
         hit.hitDis = hitDis;
         hit.pos = hitPos;
-        if(vertices[0]->norm != vec3(0) || vertices[1]->norm != vec3(0) ||
-           vertices[2]->norm != vec3(0)) {
+        if(vertices[0]->hasNorm) {
           hit.norm = (1 - al - be)*vertices[0]->norm + al*vertices[1]->norm +
                      be*vertices[2]->norm;
         } else {
+          // std::cout << "compute norm" << std::endl;
           hit.norm = normalize(cross(b-a, c-a));
         }
         hit.mtl = material;
